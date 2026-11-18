@@ -1,0 +1,41 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python: ["3.11", "3.13"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ matrix.python }}
+      - run: uv sync --locked
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run pyright
+      - run: uv run pytest -q
+      - run: uv run promptli-rakazo --help
+
+  plugin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate the Rakazo plugin files (offline mirror of Rakazo's preview rules)
+        run: python scripts/validate_plugin.py .
+      - name: No secrets in plugin files
+        run: |
+          ! grep -RInE '(psk_(live|test)_[A-Za-z0-9]{8,}|sk-[A-Za-z0-9]{20,}|whsec_[A-Za-z0-9]{8,}|\$\{[A-Z_]+\})' plugin.json mcp.json skills commands
