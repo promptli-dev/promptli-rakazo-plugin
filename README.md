@@ -1,3 +1,5 @@
+<img src="assets/icon.png" alt="Promptli Comms" width="96" align="right">
+
 # Promptli Comms for Rakazo
 
 Give a [Rakazo](https://github.com/elie222/rakazo) bot its own email address and phone number. The bot can
