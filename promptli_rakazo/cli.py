@@ -18,13 +18,13 @@ import httpx
 import typer
 from promptli import AsyncPromptli, OAuthCredential, OAuthToken, PromptliError, browser_login
 from promptli_gateway.config import DEFAULT_BASE_URL, GatewayConfig, home_dir
+from promptli_gateway.core import Gateway
 from promptli_gateway.setup.autostart import autostart_status, install_autostart, uninstall_autostart
 from promptli_gateway.setup.bootstrap import BootstrapResult, bootstrap
 from promptli_gateway.setup.doctor import doctor as run_doctor
 
 from promptli_rakazo import __version__
 from promptli_rakazo.adapter import RUNTIME, RakazoWebhookAdapter, webhook_url_problem
-from promptli_rakazo.gateway import RakazoGateway
 from promptli_rakazo.settings import RakazoSettings, settings_path
 
 app = typer.Typer(
@@ -202,7 +202,7 @@ def run(verbose: bool = typer.Option(False, "-v", "--verbose")) -> None:
     adapter = RakazoWebhookAdapter(s.webhook_url, s.webhook_key)
 
     async def main_loop() -> None:
-        gw = RakazoGateway(cfg, adapter)
+        gw = Gateway(cfg, adapter)
         loop = asyncio.get_running_loop()
         for sig in (signal.SIGINT, signal.SIGTERM):
             loop.add_signal_handler(sig, gw.stop)

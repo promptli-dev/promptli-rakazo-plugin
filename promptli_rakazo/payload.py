@@ -86,7 +86,7 @@ def build_payload(session_key: str, prompt: str, *, identity: str | None = None)
         "agent": identity,
         "channel": channel,
         "contact": contact_of(channel, prompt, session_key),
-        "contact_key": session_key.rsplit("|", 1)[0],
+        "contact_key": session_key,
         "content": content,
         "truncated": truncated,
         "reply": reply_hint(channel, prompt),

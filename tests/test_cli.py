@@ -30,7 +30,7 @@ def _home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
 
 def test_version() -> None:
     r = runner.invoke(cli.app, ["version"])
-    assert r.exit_code == 0 and "promptli-rakazo 0.1.0" in r.output
+    assert r.exit_code == 0 and "promptli-rakazo 0.1.1" in r.output
 
 
 def test_unconfigured_status_doctor_and_run() -> None:

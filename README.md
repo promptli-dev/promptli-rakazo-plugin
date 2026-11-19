@@ -121,7 +121,7 @@ uv run python scripts/validate_plugin.py .   # Rakazo's plugin rules, offline
 2. Test it in Rakazo: **Integrations → + → From GitHub**, then Preview, then check that nothing is
    listed under skipped parts. Then **Sign in**, **Use in this bot**, and a real tool call in Promptli
    test mode.
-3. Publish `promptli-rakazo` to PyPI (tag `rakazo-v0.1.0`).
+3. Publish `promptli-rakazo` to PyPI (tag `rakazo-v0.1.1`).
 4. Submit to the Rakazo marketplace at <https://rakazo.com/plugins/submit/>, or with
    `POST https://app.rakazo.com/api/v1/plugin-submissions` (`email`, `name`, `logo`, `source`,
    `description`, `testing`, `tested`). Approval pins the reviewed commit; resubmit after changes.

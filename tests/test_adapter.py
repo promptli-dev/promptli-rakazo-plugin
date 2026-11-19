@@ -9,10 +9,10 @@ import httpx
 import pytest
 from promptli_gateway.adapter import GatewayContext, TurnDone, TurnError, TurnKind
 from promptli_gateway.config import GatewayConfig
+from promptli_gateway.core import Gateway
 from promptli_gateway.framing import frame_email
 
 from promptli_rakazo.adapter import RakazoWebhookAdapter, webhook_url_problem
-from promptli_rakazo.gateway import RakazoGateway
 from tests.conftest import email_event, text_event, voicemail_event
 
 URL = "https://rakazo.example.com/api/v1/bots/bot_123/webhook"
@@ -169,7 +169,7 @@ async def run_gateway(events: list[dict[str, Any]], fake: FakeRakazo) -> tuple[F
     cfg = GatewayConfig(runtime="promptli-rakazo", identity="glow", batch_window_s=0.05, auto_reply=False)
     a = adapter(fake)
     client = FakePromptli()
-    gw = RakazoGateway(cfg, a, client=client)  # type: ignore[arg-type]
+    gw = Gateway(cfg, a, client=client)  # type: ignore[arg-type]
     gw.identity_address, gw.identity_number = CTX.identity_email, CTX.identity_number
     link = FakeLink()
     gw.link = link  # type: ignore[assignment]
@@ -204,12 +204,18 @@ async def test_gateway_routes_each_channel_to_the_webhook_and_never_sends_itself
 
 
 async def test_same_person_on_two_channels_at_once_gets_both_delivered() -> None:
-    # Plain promptli-gateway 0.2.x frames the second channel with the first one's framing and fails.
+    # promptli-gateway >= 0.2.2: one queue per person, but each queued event keeps its own channel.
     fake = FakeRakazo()
     mail = email_event(1, "see attached")
     mail["data"]["contact_key"] = "ctc_bob"
-    await run_gateway([mail, text_event(2, "did you get my email?")], fake)
-    assert sorted(p["event"] for p in fake.payloads()) == ["promptli.email", "promptli.sms"]
+    _, link = await run_gateway([mail, text_event(2, "did you get my email?")], fake)
+    by_event = {p["event"]: p for p in fake.payloads()}
+    assert sorted(by_event) == ["promptli.email", "promptli.sms"]
+    assert "see attached" in by_event["promptli.email"]["content"]
+    assert "did you get my email?" in by_event["promptli.sms"]["content"]
+    assert by_event["promptli.sms"]["reply"]["tool"] == "send_text"
+    assert {p["contact_key"] for p in by_event.values()} == {"ctc_bob"}
+    assert link.acks and link.acks[-1] == 2
 
 
 async def test_gateway_skips_stop_keywords_and_our_own_mail() -> None:

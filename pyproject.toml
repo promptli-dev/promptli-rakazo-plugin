@@ -1,14 +1,14 @@
 [project]
 name = "promptli-rakazo"
-version = "0.1.0"
+version = "0.1.1"
 description = "Promptli Comms for Rakazo: inbound email, texts and voicemail reach a Rakazo bot over Agent Link"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
 authors = [{ name = "Promptli" }]
 dependencies = [
-    "promptli[cli]>=0.2.0,<0.3",
-    "promptli-gateway>=0.2.1,<0.3",
+    "promptli[cli]>=0.2.2,<0.3",
+    "promptli-gateway>=0.2.2,<0.3",
     "httpx>=0.27",
     "typer>=0.15",
 ]
